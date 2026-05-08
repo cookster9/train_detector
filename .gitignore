@@ -1,0 +1,11 @@
+clips/
+detections.txt
+detector.pid
+example_air_con.txt
+list_classes.py
+output.log
+panns_inference/
+rejected/
+testing/
+train_detector_20260503.py
+train_log.txt
