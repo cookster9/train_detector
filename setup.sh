@@ -5,6 +5,23 @@
 set -e
 echo "=== Train detector setup ==="
 
+# Check if in a virtual environment, or if one exists locally
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo ""
+    if [ -d "venv" ]; then
+        echo "Virtual environment found locally. Activating..."
+        source venv/bin/activate
+    else
+        echo "Virtual environment not found. Creating..."
+        python3 -m venv venv
+        source venv/bin/activate
+    fi
+    echo "Virtual environment activated: $VIRTUAL_ENV"
+else
+    echo "Virtual environment already active: $VIRTUAL_ENV"
+fi
+echo ""
+
 # System deps for sounddevice and audio
 sudo apt-get update -q
 sudo apt-get install -y libportaudio2 portaudio19-dev libsndfile1 ffmpeg
