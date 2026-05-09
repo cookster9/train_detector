@@ -2,11 +2,17 @@
 import os
 import time
 import sounddevice as sd
+from dotenv import load_dotenv
 
 from config import ConfigManager
 from classifier import AudioClassifier
 from detector import TrainDetector
 from storage.file_storage import FileStorage
+from storage.supabase_storage import SupabaseStorage
+from storage.composite_storage import CompositeStorage
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def main():
@@ -25,9 +31,30 @@ def main():
         print("[main] Classifier failed to load. Exiting.", flush=True)
         return
     
-    storage = FileStorage(clips_dir="clips", log_file="detections.txt")
+    # Initialize storage backends
+    backends = []
+    
+    # Always add file storage
+    file_storage = FileStorage(clips_dir="clips", log_file="detections.txt")
+    backends.append(file_storage)
+    
+    # Add Supabase storage if credentials available
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
+    if supabase_url and supabase_key:
+        supabase_storage = SupabaseStorage(supabase_url, supabase_key)
+        backends.append(supabase_storage)
+    else:
+        print(
+            "[main] SUPABASE_URL and/or SUPABASE_KEY not set. "
+            "Skipping Supabase storage.",
+            flush=True
+        )
+    
+    # Create composite storage (writes to all backends)
+    storage = CompositeStorage(backends)
     if not storage.initialize():
-        print("[main] Storage failed to initialize. Exiting.", flush=True)
+        print("[main] Storage initialization failed. Exiting.", flush=True)
         return
     
     detector = TrainDetector(config, classifier, storage)
