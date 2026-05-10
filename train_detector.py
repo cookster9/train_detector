@@ -34,9 +34,10 @@ def main():
     # Initialize storage backends
     backends = []
     
-    # Always add file storage
-    file_storage = FileStorage(clips_dir="clips", log_file="detections.txt")
-    backends.append(file_storage)
+    # Add file storage if enabled
+    if cfg.get("USE_FILE_STORAGE"):
+        file_storage = FileStorage(clips_dir="clips", log_file="detections.txt")
+        backends.append(file_storage)
     
     # Add Supabase storage if credentials available
     supabase_url = os.getenv("SUPABASE_URL")
