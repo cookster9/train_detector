@@ -10,5 +10,4 @@ testing/
 train_detector_20260503.py
 train_log.txt
 __pycache__/
-storage/
 .env
