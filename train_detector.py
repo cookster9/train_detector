@@ -14,20 +14,8 @@ from storage.composite_storage import CompositeStorage
 # Load environment variables from .env file
 load_dotenv()
 
-import logging
-from logging.handlers import RotatingFileHandler
-
-
 def main():
     """Main entry point for the train detector."""
-    # Set up logging
-    log_handler = RotatingFileHandler(
-        "train_log.txt",
-        maxBytes=10*1024*1024,  # 10 MB
-        backupCount=5  # Keep 5 backups: train_log.txt, train_log.txt.1, .2, etc.
-    )
-    log_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-    logging.basicConfig(level=logging.INFO, handlers=[log_handler])
     
     # Initialize components
     config_file = os.path.join(
