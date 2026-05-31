@@ -37,11 +37,7 @@ class TrainDetector:
         
         self.last_classify_time = 0.0
         self.last_save_time = 0.0
-        self.classifier_busy = False
-    
-    def _get_ac_noise_status(self, all_scores: np.ndarray) -> bool:
-        """Check if air conditioner noise is detected."""
-        return all_scores[AudioClassifier.VEHICLE_CLASS] >= 0.3
+        self.classifier_busy = False    
     
     def _classify_window(self, audio_snap: np.ndarray) -> tuple:
         """
@@ -54,7 +50,6 @@ class TrainDetector:
         sr = cfg["SAMPLE_RATE"]
         threshold = cfg["CLASSIFIER_THRESHOLD"]
         threshold_faraway = cfg["CLASSIFIER_THRESHOLD_FARAWAY"]
-        threshold_interference = cfg["CLASSIFIER_THRESHOLD_INTERFERENCE"]
         
         all_scores, labels = self.classifier.classify(audio_snap, sr)
         
@@ -74,10 +69,7 @@ class TrainDetector:
                     if idx < len(labels):
                         class_score = float(all_scores[idx])
                         if class_score > 0.001:
-                            print(f"  {labels[idx]}: {class_score:.3f}", flush=True)
-        
-        # Determine detection status
-        ac_is_running = self._get_ac_noise_status(all_scores)
+                            print(f"  {labels[idx]}: {class_score:.3f}", flush=True)        
         
         if score >= threshold:
             print(f"  ✓ hit  score={score:.4f}  ", flush=True)
@@ -85,9 +77,6 @@ class TrainDetector:
         elif score >= threshold_faraway:
             print(f"  ⚠️  faraway  score={score:.4f}  ", flush=True)
             return score, "train_faraway"
-        elif ac_is_running and score >= threshold_interference:
-            print(f"  ⚠️  interference  score={score:.4f}  ", flush=True)
-            return score, "train_interference"
         
         return None, None
     
