@@ -41,7 +41,6 @@ networkx==3.6.1
 numba==0.65.1
 numpy==2.4.2
 packaging==26.0
--e git+https://github.com/cookster9/train_detector.git@adf0e44a03f09afd41e758cee2bd96ef9ebc620f#egg=panns_inference&subdirectory=panns_inference
 pillow==12.1.1
 platformdirs==4.9.6
 pooch==1.9.0
