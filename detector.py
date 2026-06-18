@@ -77,6 +77,9 @@ class TrainDetector:
         
         if cfg.get("DEBUG"):
             print(f"[classifier] score={score:.4f}  threshold={threshold}  ", flush=True)
+            print(f"[stopping] wheels_squeal={wheels_squeal:.4f}  "
+                f"air_brake={air_brake:.4f}  train_sound={train_sound:.4f}  "
+                f"composite={stopping_score:.4f}", flush=True)
             
             # Print top 10 classifications
             if labels is not None:
