@@ -13,6 +13,11 @@ class AudioClassifier:
     AIRCRAFT_CLASS = 335
     AIR_CONDITIONER_CLASS = 413
     
+    # Stopping indicators
+    TRAIN_WHEELS_SQUEALING_CLASS = 333
+    AIR_BRAKE_CLASS = 317
+    TRAIN_CLASS = 329
+    
     def __init__(self, panns_path: str = None, device: str = 'cpu'):
         """
         Initialize the audio classifier.

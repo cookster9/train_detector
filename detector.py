@@ -37,7 +37,14 @@ class TrainDetector:
         
         self.last_classify_time = 0.0
         self.last_save_time = 0.0
-        self.classifier_busy = False    
+        self.classifier_busy = False
+        
+        # Train stopping detection state
+        self.last_train_close_time = 0.0
+        self.last_train_stopping_time = 0.0
+        self.train_activity_window = cfg.get("TRAIN_ACTIVITY_WINDOW", 30.0)  # seconds
+        self.last_train_stopping_save = 0.0
+        self.baseline_train_score = None  # Track average train sound during activity
     
     def _classify_window(self, audio_snap: np.ndarray) -> tuple:
         """
@@ -80,6 +87,44 @@ class TrainDetector:
         
         return None, None
     
+    def _classify_stopping_window(self, audio_snap: np.ndarray) -> tuple:
+        """
+        Classify a window of audio for train stopping indicators.
+        
+        Used after train_close detected to look for squealing wheels, air brake, etc.
+        
+        Returns:
+            Tuple of (stopping_score, label) or (None, None) if no strong stopping signal
+        """
+        cfg = self.config.get()
+        sr = cfg["SAMPLE_RATE"]
+        
+        all_scores, labels = self.classifier.classify(audio_snap, sr)
+        
+        if all_scores is None:
+            return None, None
+        
+        # Extract stopping indicator scores
+        wheels_squeal = all_scores[AudioClassifier.TRAIN_WHEELS_SQUEALING_CLASS]
+        air_brake = all_scores[AudioClassifier.AIR_BRAKE_CLASS]
+        train_sound = all_scores[AudioClassifier.TRAIN_CLASS]
+        
+        # Composite stopping confidence: high weight on squealing, moderate on brake
+        stopping_score = (wheels_squeal * 0.6) + (air_brake * 0.3) + (train_sound * 0.1)
+        
+        stopping_threshold = cfg.get("STOPPING_THRESHOLD", 0.15)
+        
+        if cfg.get("DEBUG"):
+            print(f"[stopping] wheels_squeal={wheels_squeal:.4f}  "
+                  f"air_brake={air_brake:.4f}  train_sound={train_sound:.4f}  "
+                  f"composite={stopping_score:.4f}  threshold={stopping_threshold}", flush=True)
+        
+        if stopping_score >= stopping_threshold:
+            print(f"  🛑 stopping detected  score={stopping_score:.4f}", flush=True)
+            return stopping_score, "train_stopping"
+        
+        return None, None
+    
     def _save_detection(self, score: float, label: str):
         """Save a detection to storage."""
         cfg = self.config.get()
@@ -107,20 +152,47 @@ class TrainDetector:
         try:
             cfg = self.config.get()
             cooldown = cfg["COOLDOWN"]
+            cooldown_stopping = cfg.get("STOPPING_COOLDOWN", cooldown)
             now = time.time()
             
+            # Check if we're in train activity window (post-horn monitoring)
+            time_since_train_close = now - self.last_train_close_time
+            in_activity_window = time_since_train_close < self.train_activity_window
+            
+            if in_activity_window and cfg.get("DEBUG"):
+                print(f"[classifier] in activity window  "
+                      f"t_since_close={time_since_train_close:.1f}s", flush=True)
+            
+            # Check for horn first
             score, label = self._classify_window(audio_snap)
             
-            if label is None:
-                return
+            if label is not None:
+                # Update train activity marker
+                if label == "train_close":
+                    self.last_train_close_time = now
+                
+                # Only save if cooldown has passed
+                if (now - self.last_save_time) < cooldown:
+                    if cfg.get("DEBUG"):
+                        print(f"[classifier] cooldown active — skipping save", flush=True)
+                    return
+                
+                self.last_save_time = now
+                self._save_detection(score, label)
             
-            if (now - self.last_save_time) < cooldown:
-                if cfg.get("DEBUG"):
-                    print(f"[classifier] cooldown active — skipping save", flush=True)
-                return
+            # Check for stopping indicators
+            stopping_score, stopping_label = self._classify_stopping_window(audio_snap)
             
-            self.last_save_time = now
-            self._save_detection(score, label)
+            if stopping_label is not None:
+                # Only save if cooldown has passed
+                self.last_train_stopping_time = now
+                if abs(self.last_train_stopping_time - self.last_train_close_time) < self.train_activity_window:
+                    if (now - self.last_train_stopping_save) < cooldown_stopping:
+                        if cfg.get("DEBUG"):
+                            print(f"[classifier] stopping cooldown active — skipping save", flush=True)
+                        return
+                    self.last_train_stopping_save = now
+                    self._save_detection(stopping_score, stopping_label)
             
         finally:
             self.classifier_busy = False
