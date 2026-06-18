@@ -45,6 +45,9 @@ class TrainDetector:
         self.train_activity_window = cfg.get("TRAIN_ACTIVITY_WINDOW", 30.0)  # seconds
         self.last_train_stopping_save = 0.0
         self.baseline_train_score = None  # Track average train sound during activity
+
+        # ntfy
+        self.last_notification_time = 0
     
     def _classify_window(self, audio_snap: np.ndarray) -> tuple:
         """
@@ -147,6 +150,7 @@ class TrainDetector:
                 # Update train activity marker
                 if train_horn_label == "train_close":
                     self.last_train_close_time = now
+                    self._notify_train_close()
 
                 # Only save horn/faraway if cooldown has passed
                 if (now - self.last_save_time) < cooldown:
@@ -228,3 +232,23 @@ class TrainDetector:
             args=(audio_snap, now),
             daemon=True
         ).start()
+    
+    def _notify_train_close(self):
+        """Send push notification for train_close event via ntfy."""
+        import os, requests
+        topic = os.environ.get("NTFY_TOPIC")
+        if not topic:
+            return
+        now = time.time()
+        if (now - self.last_notification_time) < 60:
+            return
+        self.last_notification_time = now
+        try:
+            requests.post(
+                f"https://ntfy.sh/{topic}",
+                data="Train approaching!",
+                headers={"Title": "🚂 Train Detected", "Priority": "high"},
+                timeout=5,
+            )
+        except Exception as e:
+            print(f"[notify] failed to send notification: {e}", flush=True)
