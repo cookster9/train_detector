@@ -63,7 +63,7 @@ class TrainDetector:
         if all_scores is None:
             return None, None, None, None
 
-        score = all_scores[AudioClassifier.TRAIN_HORN_CLASS]
+        train_horn_score = all_scores[AudioClassifier.TRAIN_HORN_CLASS]
 
         # Stopping indicators (evaluate them in the same pass)
         wheels_squeal = float(all_scores[AudioClassifier.TRAIN_WHEELS_SQUEALING_CLASS])
@@ -76,7 +76,7 @@ class TrainDetector:
         stopping_label = "train_stopping" if stopping_score >= stopping_threshold else None
         
         if cfg.get("DEBUG"):
-            print(f"[classifier] score={score:.4f}  threshold={threshold}  ", flush=True)
+            print(f"[classifier] train_horn_score={train_horn_score:.4f}  threshold={threshold}  ", flush=True)
             print(f"[stopping] wheels_squeal={wheels_squeal:.4f}  "
                 f"air_brake={air_brake:.4f}  train_sound={train_sound:.4f}  "
                 f"composite={stopping_score:.4f}", flush=True)
@@ -91,12 +91,12 @@ class TrainDetector:
                         if class_score > 0.001:
                             print(f"  {labels[idx]}: {class_score:.3f}", flush=True)        
         
-        if score >= threshold:
-            print(f"  ✓ hit  score={score:.4f}  ", flush=True)
-            return score, "train_close", stopping_score, stopping_label
-        elif score >= threshold_faraway:
-            print(f"  ⚠️  faraway  score={score:.4f}  ", flush=True)
-            return score, "train_faraway", stopping_score, stopping_label
+        if train_horn_score >= threshold:
+            print(f"  ✓ hit  train_horn_score={train_horn_score:.4f}  ", flush=True)
+            return train_horn_score, "train_close", stopping_score, stopping_label
+        elif train_horn_score >= threshold_faraway:
+            print(f"  ⚠️  faraway  train_horn_score={train_horn_score:.4f}  ", flush=True)
+            return train_horn_score, "train_faraway", stopping_score, stopping_label
 
         return None, None, stopping_score, stopping_label
     
@@ -141,11 +141,11 @@ class TrainDetector:
                       f"t_since_close={time_since_train_close:.1f}s", flush=True)
             
             # Check for horn and stopping indicators in one pass
-            score, label, stopping_score, stopping_label = self._classify_window(audio_snap)
+            train_horn_score, train_horn_label, stopping_score, stopping_label = self._classify_window(audio_snap)
 
-            if label is not None:
+            if train_horn_label is not None:
                 # Update train activity marker
-                if label == "train_close":
+                if train_horn_label == "train_close":
                     self.last_train_close_time = now
 
                 # Only save horn/faraway if cooldown has passed
@@ -154,7 +154,7 @@ class TrainDetector:
                         print(f"[classifier] cooldown active — skipping save", flush=True)
                 else:
                     self.last_save_time = now
-                    self._save_detection(score, label)
+                    self._save_detection(train_horn_score, train_horn_label)
 
             # If stopping signal present, only save if it occurs within activity window
             if stopping_label is not None:
