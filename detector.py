@@ -236,7 +236,7 @@ class TrainDetector:
     def _notify_train_close(self):
         """Send push notification for train_close event via ntfy."""
         import os, requests
-        topic = os.environ.get("NTFY_TOPIC")
+        topic = os.getenv("NTFY_TOPIC")
         if not topic:
             return
         now = time.time()
