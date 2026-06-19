@@ -246,8 +246,8 @@ class TrainDetector:
         try:
             requests.post(
                 f"https://ntfy.sh/{topic}",
-                data="Train approaching!",
-                headers={"Title": "🚂 Train Detected", "Priority": "high"},
+                data="🚂 Train approaching!",
+                headers={"Title": "Train Detected", "Priority": "high"},
                 timeout=5,
             )
         except Exception as e:
