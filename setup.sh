@@ -33,12 +33,7 @@ pip install sounddevice numpy scipy
 # PANNs inference — the PyPI package has ARM issues, install direct from source
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install librosa
-
-# Clone and install panns_inference manually (avoids broken PyPI ARM wheel)
-if [ ! -d "panns_inference" ]; then
-    git clone https://github.com/qiuqiangkong/panns_inference.git
-fi
-pip install -e panns_inference/
+pip install panns-inference
 
 echo ""
 echo "=== Downloading PANNs model weights (CNN14, ~200MB) ==="
