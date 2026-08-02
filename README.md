@@ -4,7 +4,7 @@ Train Detector is a Python-based audio monitoring tool that listens for train-re
 
 It is designed for use on a Raspberry Pi or similar low-power device, but it can also run on a desktop machine with a compatible microphone.
 
-## Implementation for [https://github.com/cookster9/train-detection-dashboard](Train Detector Dashboard)
+## Implementation for [Train Detector Dashboard](https://github.com/cookster9/train-detection-dashboard)
 I was tired of leaving the house, or coming back from the house, and a train was crossing the road near my house. I wanted to see if I could give myself a notification for whether the train is there. So I set this up to listen for train noises and write to a database if it's detected.
 
 I set up this project on a Raspberry Pi 5. I attached a cheap usb lavalier mic to the Pi and threaded it out the window:
