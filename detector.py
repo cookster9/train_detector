@@ -74,7 +74,7 @@ class TrainDetector:
         train_sound = float(all_scores[AudioClassifier.TRAIN_CLASS])
 
         # Composite stopping confidence: high weight on squealing, moderate on brake
-        stopping_score = (wheels_squeal * 0.9) + (train_sound * 0.1)
+        stopping_score = wheels_squeal # (wheels_squeal * 0.9) + (train_sound * 0.1)
         stopping_threshold = cfg.get("STOPPING_THRESHOLD", 0.15)
         stopping_label = "train_stopping" if stopping_score >= stopping_threshold else None
         
