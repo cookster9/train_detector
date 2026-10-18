@@ -80,7 +80,12 @@ You can also configure optional environment variables:
 export SUPABASE_URL="https://your-project.supabase.co"
 export SUPABASE_KEY="your-anon-or-service-role-key"
 export NTFY_TOPIC="your-topic-name"
+export FRA_CROSSING_ID="your-fra-crossing-id"
 ```
+
+`FRA_CROSSING_ID` must match a `fra_crossing_id` value in the Supabase
+`crossings` table. Supabase storage resolves that crossing during startup and
+sets its row ID as `crossing_id` on each new detection.
 
 ## Running the Detector
 

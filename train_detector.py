@@ -42,8 +42,11 @@ def main():
     # Add Supabase storage if credentials available
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_KEY")
+    fra_crossing_id = os.getenv("FRA_CROSSING_ID")
     if supabase_url and supabase_key:
-        supabase_storage = SupabaseStorage(supabase_url, supabase_key)
+        supabase_storage = SupabaseStorage(
+            supabase_url, supabase_key, fra_crossing_id
+        )
         backends.append(supabase_storage)
     else:
         print(
