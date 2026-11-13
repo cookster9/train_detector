@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict c1dF4aW7r0nWb2uqYGljZgr0SY7codczBlgfKq55GeHJmB8jX3dZ5QIXGs2N7th
+\restrict S0vuduqOK4sJUURRgdffyP5nDe44EOhLuDzWN27YUTEaMy1pXrnuxN7t0YqdPhr
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.12
@@ -87,7 +87,8 @@ CREATE TABLE public.crossings (
     id bigint NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     fra_crossing_id character varying NOT NULL,
-    street text
+    street text,
+    google_maps_url text
 );
 
 
@@ -214,5 +215,5 @@ CREATE POLICY "web read" ON public.detections FOR SELECT USING (true);
 -- PostgreSQL database dump complete
 --
 
-\unrestrict c1dF4aW7r0nWb2uqYGljZgr0SY7codczBlgfKq55GeHJmB8jX3dZ5QIXGs2N7th
+\unrestrict S0vuduqOK4sJUURRgdffyP5nDe44EOhLuDzWN27YUTEaMy1pXrnuxN7t0YqdPhr
 
