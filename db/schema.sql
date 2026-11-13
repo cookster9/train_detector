@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict S0vuduqOK4sJUURRgdffyP5nDe44EOhLuDzWN27YUTEaMy1pXrnuxN7t0YqdPhr
+\restrict 94vtNpseNVlhSJNdDrznazvt1HCpqGNMqJBMalanJIiUUAodyuotopyDxrywgRP
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.12
@@ -215,5 +215,5 @@ CREATE POLICY "web read" ON public.detections FOR SELECT USING (true);
 -- PostgreSQL database dump complete
 --
 
-\unrestrict S0vuduqOK4sJUURRgdffyP5nDe44EOhLuDzWN27YUTEaMy1pXrnuxN7t0YqdPhr
+\unrestrict 94vtNpseNVlhSJNdDrznazvt1HCpqGNMqJBMalanJIiUUAodyuotopyDxrywgRP
 
